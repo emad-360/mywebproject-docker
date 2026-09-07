@@ -1,0 +1,83 @@
+pom.xml mistakes:
+1.spelling mistakes (artifactid,groupid,etc)
+2.versions missing (junit,etc)
+3.mysql->com.mysql and mysql-library -> mysql-connector-j
+4.duplicate configs
+5.jar or war
+6.versions are wrong 
+7.url's port number
+8.overriding version after mentioning in dependency managment 
+9.servlet missing
+10. no main manifest attribute (be sure to add jar plugin)
+
+to push into github 
+.git ignore should contain: (using nano .gitignore)
+target/
+.class
+.classpath
+.project
+.settings/
+.sts/
+then normal steps of git pushing
+
+
+now for dockerhub: 
+start by creating Dockerfile (using nano Dockerfile):
+it should contain:
+
+for java project
+FROM eclipse-temurin:jdk-17
+WORKDIR /app.dir
+COPY target/urfile.jar app.jar
+cmd["java","-jar","app.jar"]
+
+for web project:
+FROM tomcat:9.0
+COPY target/urfile.war /usr/local/tomcat/webapps/ROOT.war
+EXPOSE 8080
+CMD ["catalina.sh","run"]
+
+now 
+docker build -t smth-app .
+docker images
+
+to run:
+for web: docker run -d --name smth-container -p 7012:8080 smth-app
+for java: docker run smth-app
+
+now to push:
+docker tag smth-app (dockerhub_username)/smth-app
+docker images
+docker push (dockerhub_username)/smth-app
+
+if container exists:
+docker stop smth-container
+docker rm smth-container
+docker ps -a 
+
+to remove image u use docker rmi
+
+Common errors:
+
+1)no main manifest error 
+fix1:
+<plugin>
+     <artifactId>maven-jar-plugin</artifactId>
+     <configuration>
+         <archive>
+          <manifest>
+            <mainClass>CSMB.CEMS.App</mainClass>
+          </manifest>
+         </archive>
+     </configuration>
+</plugin>
+add this plugin inside plugins
+
+fix2:
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+COPY target/java-exam-practice-0.0.1-SNAPSHOT.jar app.jar
+CMD ["java","-cp","app.jar","groupId.artifactId.App"]
+
+2)sometimes dependencies dont get updated
+fix: use maven and update project
